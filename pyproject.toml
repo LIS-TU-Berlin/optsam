@@ -1,0 +1,19 @@
+[project]
+name = "optsam"
+version = "0.1.0"
+description = "Optimization and Sampling Library - including constrained sparse NLP solvers, NLP sampling, zero-order methods, and test problems"
+readme = "README.md"
+authors = [
+    { name = "Marc Toussaint", email = "toussaint@tu-berlin.de" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    'robotic',
+]
+
+[project.scripts]
+optsam = "optsam:main"
+
+[build-system]
+requires = ["uv_build>=0.10.11,<0.11.0"]
+build-backend = "uv_build"
