@@ -3,13 +3,13 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="prev" title="&lt;no title&gt;" href="../index.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Test Problems" href="test_problems.html"><link rel="prev" title="OptSam - Optimization and Sampling Library" href="../index.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/tutorials/nlp_interface.html">
-        <link rel="prefetch" href="../_static/img/robotics.png" as="image">
-        <link rel="prefetch" href="../_static/img/robotics-white.png" as="image">
+        <link rel="prefetch" href="../_static/img/lis.png" as="image">
+        <link rel="prefetch" href="../_static/img/lis.png" as="image">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Extension - NLP interface: Low-level NLP formulation and solving - LIS Optimization &amp; Sampling</title>
+    <link rel="shortcut icon" href="../_static/lis.png"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>NLP interface &amp; Solver basics - LIS Optimization &amp; Sampling</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -186,8 +186,8 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo only-light" src="../_static/img/robotics.png" alt="Light Logo"/>
-    <img class="sidebar-logo only-dark" src="../_static/img/robotics-white.png" alt="Dark Logo"/>
+    <img class="sidebar-logo only-light" src="../_static/img/lis.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/img/lis.png" alt="Dark Logo"/>
   </div>
   
   <span class="sidebar-brand-text">LIS Optimization & Sampling</span>
@@ -200,7 +200,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Extension - NLP interface: Low-level NLP formulation and solving</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">NLP interface &amp; Solver basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test_problems.html">Test Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compare_solvers.html">Solvers</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -247,127 +249,22 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="Extension---NLP-interface:-Low-level-NLP-formulation-and-solving">
-<h1>Extension - NLP interface: Low-level NLP formulation and solving<a class="headerlink" href="#Extension---NLP-interface:-Low-level-NLP-formulation-and-solving" title="Link to this heading">¶</a></h1>
-<p>This is completely independent from all robotics code. Provides a generic interface to NLP formulation and calling various solvers.</p>
+          <section id="NLP-interface-&amp;-Solver-basics">
+<h1>NLP interface &amp; Solver basics<a class="headerlink" href="#NLP-interface-&-Solver-basics" title="Link to this heading">¶</a></h1>
+<p>THis tutorial illustrates the generic NLP interface, access to a solver, and plotting the traces.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import optsam as op
 import numpy as np
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 </pre></div>
 </div>
 </div>
-<p>Define simple SumOfSqr over 3 dimensions</p>
+<p>Define a problem, here: 2 dimensional, with 2 SOS features, and bounds [-1,-2]x[2,3]</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class SimpleSumOfSqr:
-    def __init__(self):
-        self.dimension = 3
-        self.types = [op.sos] * 3
-        self.bounds = np.array([[-2,-2,-2],[2,2,2]])
-
-    def evaluate(self, x):
-        phi = x.copy()
-        phi[0] = phi[0] - 1.
-        J = np.eye(phi.size)
-        return phi, J
-
-    def getInitializationSample(self):
-        return np.random.uniform(self.bounds[0], self.bounds[1])
-
-nlp = SimpleSumOfSqr()
-</pre></div>
-</div>
-</div>
-<p>Define a solver</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>solver = op.NLP_Solver()
-solver.setPyProblem(nlp)
-solver.setSolver(op.OptMethod.Newton)
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;robotic._robotic.NLP_Solver at 0x72be8d6db7b0&gt;
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>solver.solve(True)
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;robotic._robotic.SolverReturn at 0x72be8d6d96f0&gt;
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
---newton-- initial point f(x):1.85887 alpha:1 beta:1
---newton done-- final f(x):3.57959e-05
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>solver.getTrace_best()
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-array([[1.85887188e+00],
-       [1.26120005e+00],
-       [7.79086464e-01],
-       [4.12531128e-01],
-       [1.61534041e-01],
-       [2.60952011e-02],
-       [2.89946679e-03],
-       [3.22162977e-04],
-       [3.57958863e-05]])
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import robotic as ry
-import optsam as op
-import numpy as np
-import matplotlib.pylab as plt
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class MyNLP:
@@ -389,105 +286,44 @@ nlp = MyNLP()
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>solver = ry.NLP_Solver()
-solver.setPyProblem(nlp)
-solver.setOptions(stepMax=.5, damping=1e-4)
-solver.setTracing(trace_x=True, trace_errs=True)
-nlp = solver.getProblem()
-</pre></div>
-</div>
-</div>
+<p>Create a solver</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for i in range(20):
-    ret = solver.solve(1)
-    print(ret)
-x = solver.getTrace_x()
-E = solver.getTrace_errs()
-z = solver.getTrace_best()
-plt.plot(x[:,0], x[:,1], &#39;o-&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sol = op.NLP_Solver()
+sol.setPyProblem(nlp)
+sol.setOptions(stepMax=.5, damping=1e-4)
+sol.setTracing(trace_x=True, trace_errs=True)
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{ time: 0.000422, evals: 12, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 1.41056e-12, f: 0, x-dim: [2] }-- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
+&lt;robotic._robotic.NLP_Solver at 0x7e29d9663fb0&gt;
+</pre></div></div>
+</div>
+<p>Call the solver. Here 20 times in a row, each time automatically initialized with uniform in the bounds (default implementation of nlp.getInitializationSample)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>trace_x = []
+trace_err = []
 
-{ time: 0.000343, evals: 22, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.09625e-14, x-dim: [2] }
-{ time: 4.1e-05, evals: 24, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 4.07958e-06, x-dim: [2] }
-{ time: 5.7e-05, evals: 27, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 3.30286e-11, x-dim: [2] }
-{ time: 8.1e-05, evals: 33, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.74085e-10, x-dim: [2] }
-{ time: 7.8e-05, evals: 39, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.28414e-13, x-dim: [2] }
-{ time: 7.9e-05, evals: 45, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.1786e-13, x-dim: [2] }
-{ time: 9.8e-05, evals: 53, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 5.60717e-14, x-dim: [2] }
-{ time: 7.1e-05, evals: 58, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.7675e-10, x-dim: [2] }
-{ time: 6.8e-05, evals: 63, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 6.19571e-06, x-dim: [2] }
-{ time: 8.1e-05, evals: 69, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.66348e-10, x-dim: [2] }
-{ time: 5.8e-05, evals: 73, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 7.51792e-07, x-dim: [2] }
-{ time: 5.6e-05, evals: 77, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 3.87546e-06, x-dim: [2] }
-{ time: 5.8e-05, evals: 81, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 5.80803e-10, x-dim: [2] }
-{ time: 0.000107, evals: 88, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.53112e-10, x-dim: [2] }
-{ time: 0.000122, evals: 98, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 6.1037e-14, x-dim: [2] }
-{ time: 0.000137, evals: 109, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.08207e-12, x-dim: [2] }
-{ time: 0.000143, evals: 121, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.7496e-10, x-dim: [2] }
-{ time: 7.5e-05, evals: 127, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.14888e-14, x-dim: [2] }
-{ time: 8.6e-05, evals: 134, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.07692e-13, x-dim: [2] }
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[&lt;matplotlib.lines.Line2D at 0x72be8d7350d0&gt;]
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_11_2.png" src="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_11_2.png" />
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>X = np.arange(-2, 2, 0.15)
-Y = np.arange(-1, 3, 0.15)
-X, Y = np.meshgrid(X, Y)
-xy = np.hstack((X.reshape(-1,1),Y.reshape(-1,1)))
-print(X.shape)
-Z = np.array([nlp.eval_scalar(x)[0] for x in xy]).reshape(X.shape)
+for i in range(20):
+    ret = sol.solve(1)
+    print(ret)
+
+    trace_x.append(sol.getTrace_x())
+    trace_err.append(sol.getTrace_errs())
+    sol.clearTracing()
+
+trace_f = [np.sum(E, axis=1) for E in trace_err]
 </pre></div>
 </div>
 </div>
@@ -496,43 +332,80 @@ Z = np.array([nlp.eval_scalar(x)[0] for x in xy]).reshape(X.shape)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(27, 27)
+{ time: 0.00025, evals: 9, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 4.47236e-12, f: 0, x-dim: [2] }
+{ time: 7.7e-05, evals: 5, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.25704e-13, x-dim: [2] }
+{ time: 0.000145, evals: 11, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 4.91618e-12, x-dim: [2] }
+{ time: 0.000168, evals: 13, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.21774e-12, x-dim: [2] }
+{ time: 8.8e-05, evals: 7, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.11491e-13, x-dim: [2] }
+{ time: 0.000105, evals: 8, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 3.02596e-08, x-dim: [2] }
+{ time: 5.3e-05, evals: 4, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 5.41543e-06, x-dim: [2] }
+{ time: 0.000125, evals: 10, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 7.43386e-14, x-dim: [2] }
+{ time: 0.000137, evals: 11, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.49565e-14, x-dim: [2] }
+{ time: 8.8e-05, evals: 7, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.21064e-12, x-dim: [2] }
+{ time: 0.000177, evals: 14, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.33757e-12, x-dim: [2] }
+{ time: 0.000124, evals: 10, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.17767e-11, x-dim: [2] }
+{ time: 6e-05, evals: 4, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.84048e-10, x-dim: [2] }
+{ time: 5.2e-05, evals: 4, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 1.85715e-12, x-dim: [2] }
+{ time: 9.9e-05, evals: 8, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 3.0042e-14, x-dim: [2] }
+{ time: 6.5e-05, evals: 5, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 5.81601e-07, x-dim: [2] }
+{ time: 6.3e-05, evals: 5, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 3.54078e-14, x-dim: [2] }
+{ time: 0.000162, evals: 13, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 2.02446e-13, x-dim: [2] }
+{ time: 0.000151, evals: 12, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 5.27049e-12, x-dim: [2] }
+{ time: 5.2e-05, evals: 4, done: 1, feasible: 1, eq: 0, ineq: 0, sos: 0, f: 4.20806e-11, x-dim: [2] }
 </pre></div></div>
 </div>
+<p>The following creates a grid X of input points, and evaluates the fct on X</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>nlp = sol.getProblem()
+B = nlp.bounds
+X = [None] * nlp.dimension
+for i in range(nlp.dimension):
+    X[i] = np.linspace(B[0][i], B[1][i], 30)
+X = np.stack(np.meshgrid(*X, indexing=&#39;ij&#39;), axis=-1)
+fX = np.array([nlp.eval_scalar(x)[0] for x in X.reshape(-1, nlp.dimension)])
+fX = fX.reshape(X.shape[:-1])
+</pre></div>
+</div>
+</div>
+<p>… to prepare plotting.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = plt.subplots()
-ax.contour(X,Y,Z, 200)
-ax.plot(x[:,0], x[:,1], &#39;o-r&#39;, ms=3)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = plt.figure(figsize=(10,5))
+ax1 = fig.add_subplot(121)
+ax1.contour(X[:,:,0], X[:,:,1], fX, 200)
+for x in trace_x:
+    ax1.plot(x[:,0], x[:,1], &#39;o-r&#39;, ms=3)
+
+ax2 = fig.add_subplot(122, projection=&#39;3d&#39;)
+ax2.plot_wireframe(X[:,:,0], X[:,:,1], fX)
+for x,f in zip(trace_x, trace_f):
+    ax2.plot(x[:,0], x[:,1], f, &#39;o-r&#39;, ms=3)
+
+plt.show()
 </pre></div>
 </div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[&lt;matplotlib.lines.Line2D at 0x72be8d769640&gt;]
-</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_13_1.png" src="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_13_1.png" />
+<img alt="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_11_0.png" src="../../html/.doctrees/nbsphinx/tutorials_nlp_interface_11_0.png" />
 </div>
 </div>
+<p>Finally, an example to check the derivatives (Jacobian of all problem features) at random initialization points:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for i in range(20):
-    x = solver.getProblem().getInitializationSample()
-    r = solver.getProblem().checkJacobian(x, 1e-6)
-    print(r, x)
+    x = sol.getProblem().getInitializationSample()
+    r = sol.getProblem().checkJacobian(x, 1e-6)
+    # print(r, x)
 </pre></div>
 </div>
 </div>
@@ -541,66 +414,26 @@ ax.plot(x[:,0], x[:,1], &#39;o-r&#39;, ms=3)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-True [1.96321714 2.48255659]
-True [0.69061043 1.35082355]
-True [-0.9799425   1.37218178]
-True [-0.91311985  0.08192466]
-True [-1.61627909  1.53022519]
-True [-1.39490884  2.79544991]
-True [-1.82958298  1.94035628]
-True [-0.13801187 -0.10984184]
-True [0.2859369  1.41827765]
-True [0.79200713 1.65874263]
-True [-1.30539116  2.0059782 ]
-True [1.29966758 2.01238363]
-True [-0.72380283  1.13020492]
-True [-1.40978349  2.17051252]
-True [1.65012398 2.17752457]
-True [-1.9623664   1.04021141]
-True [-0.81762537  1.23967576]
-True [0.01669006 0.24006492]
-True [1.9303154  2.85782124]
-True [-0.20574558  0.21405543]
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=3.48181e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=5.98194e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
+checkJacobian -- SUCCESS (max diff error=4.77775e-08)
+checkJacobian -- SUCCESS (max diff error=7.22076e-08)
+checkJacobian -- SUCCESS (max diff error=5.4158e-08)
+checkJacobian -- SUCCESS (max diff error=1.46638e-07)
+checkJacobian -- SUCCESS (max diff error=9.7298e-08)
+checkJacobian -- SUCCESS (max diff error=4.3091e-08)
+checkJacobian -- SUCCESS (max diff error=7.05854e-08)
+checkJacobian -- SUCCESS (max diff error=4.06059e-08)
 checkJacobian -- SUCCESS (max diff error=1.82324e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
 checkJacobian -- SUCCESS (max diff error=1.82324e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=2.00592e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=9.25115e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.0705e-07)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=3.13945e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=3.30789e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=7.51231e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=5.59044e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=6.17811e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
+checkJacobian -- SUCCESS (max diff error=2.94674e-08)
+checkJacobian -- SUCCESS (max diff error=4.28127e-08)
+checkJacobian -- SUCCESS (max diff error=6.64386e-08)
+checkJacobian -- SUCCESS (max diff error=7.41691e-08)
 checkJacobian -- SUCCESS (max diff error=1.82324e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.1036e-07)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=5.21045e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.0705e-07)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.82324e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=2.35842e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.82324e-08)
--- WARNING:py-Optim.cpp:getInitializationSample:65(-1) no getInitializationSample implemented -- using default fallback
-checkJacobian -- SUCCESS (max diff error=1.99249e-08)
+checkJacobian -- SUCCESS (max diff error=8.45106e-08)
+checkJacobian -- SUCCESS (max diff error=2.74902e-08)
+checkJacobian -- SUCCESS (max diff error=3.61076e-08)
+checkJacobian -- SUCCESS (max diff error=2.40602e-08)
+checkJacobian -- SUCCESS (max diff error=7.05854e-08)
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -618,7 +451,15 @@ checkJacobian -- SUCCESS (max diff error=1.99249e-08)
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="test_problems.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Test Problems</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="../index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">

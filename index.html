@@ -3,12 +3,12 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Extension - NLP interface: Low-level NLP formulation and solving" href="tutorials/nlp_interface.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="NLP interface &amp; Solver basics" href="tutorials/nlp_interface.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/index.html">
-        <link rel="prefetch" href="_static/img/robotics.png" as="image">
-        <link rel="prefetch" href="_static/img/robotics-white.png" as="image">
+        <link rel="prefetch" href="_static/img/lis.png" as="image">
+        <link rel="prefetch" href="_static/img/lis.png" as="image">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <link rel="shortcut icon" href="_static/lis.png"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>LIS Optimization &amp; Sampling</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
@@ -185,8 +185,8 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo only-light" src="_static/img/robotics.png" alt="Light Logo"/>
-    <img class="sidebar-logo only-dark" src="_static/img/robotics-white.png" alt="Dark Logo"/>
+    <img class="sidebar-logo only-light" src="_static/img/lis.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/img/lis.png" alt="Dark Logo"/>
   </div>
   
   <span class="sidebar-brand-text">LIS Optimization & Sampling</span>
@@ -199,7 +199,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/nlp_interface.html">Extension - NLP interface: Low-level NLP formulation and solving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/nlp_interface.html">NLP interface &amp; Solver basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/test_problems.html">Test Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/compare_solvers.html">Solvers</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -250,10 +252,18 @@
 </div>
 <div class="toctree-wrapper compound">
 </div>
-<div class="toctree-wrapper compound">
+<section id="optsam-optimization-and-sampling-library">
+<h1>OptSam - Optimization and Sampling Library<a class="headerlink" href="#optsam-optimization-and-sampling-library" title="Link to this heading">¶</a></h1>
+<p>A package defining an NLP abstraction, including constrained sparse NLP solvers, NLP sampling, zero-order methods, and test problems.</p>
+<section id="installation">
+<h2>Installation:<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  pip install optsam
+</pre></div>
 </div>
-<p>Description</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">opt</span>
+</section>
+<section id="example">
+<h2>Example:<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
@@ -261,7 +271,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SimpleSumOfSqr</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="mi">3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">featureTypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">opt</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">sos</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">featureTypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">sos</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -276,15 +286,17 @@
 <span class="n">nlp</span> <span class="o">=</span> <span class="n">SimpleSumOfSqr</span><span class="p">()</span>
 
 <span class="c1"># Define a solver</span>
-<span class="n">solver</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">NLP_Solver</span><span class="p">()</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP_Solver</span><span class="p">()</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">setPyProblem</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
-<span class="n">solver</span><span class="o">.</span><span class="n">setSolver</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">Newton</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">setSolver</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">Newton</span><span class="p">)</span>
 
 <span class="c1"># Run the solver</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">getTrace_best</span><span class="p">()</span>
 </pre></div>
 </div>
+</section>
+</section>
 
         </article>
       </div>
@@ -296,7 +308,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Extension - NLP interface: Low-level NLP formulation and solving</div>
+                <div class="title">NLP interface &amp; Solver basics</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
