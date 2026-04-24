@@ -8,10 +8,10 @@ info:
 	@echo "PY_SITE:" $(PY_SITE)
 
 docs:
-	cd rai-docs && sphinx-build doc ../html
+	sphinx-build docs build
 
 docs-clean:
-	rm -Rf html
+	rm -Rf  build html
 
 local-install:
 	uv pip install -e .
