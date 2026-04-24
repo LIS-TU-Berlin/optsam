@@ -7,11 +7,11 @@ info:
 	@echo "PY_VER:" $(PY_VER)
 	@echo "PY_SITE:" $(PY_SITE)
 
-docs:
-	sphinx-build docs build
+docs: force
+	sphinx-build docs html
 
 docs-clean:
-	rm -Rf  build html
+	rm -Rf html
 
 local-install:
 	uv pip install -e .
@@ -27,3 +27,4 @@ wheel:
 wheel-upload:
 	twine upload dist/*.whl
 
+force:	;

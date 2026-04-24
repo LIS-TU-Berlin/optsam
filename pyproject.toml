@@ -1,6 +1,6 @@
 [project]
 name = "optsam"
-version = "0.1.0"
+version = "0.1.1"
 description = "Optimization and Sampling Library - including constrained sparse NLP solvers, NLP sampling, zero-order methods, and test problems"
 readme = "README.md"
 authors = [
@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    'robotic',
+    'robotic>=0.3.9',
 ]
 
 [project.scripts]

@@ -57,6 +57,9 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# NbSphinx settings
+nbsphinx_execute = 'never'
+
 # Napoleon settings
 napoleon_use_ivar = True
 napoleon_use_admonition_for_references = True
@@ -72,12 +75,10 @@ html_theme = "furo"
 html_title = "LIS Optimization & Sampling"
 html_baseurl = "https://github.com/LIS-TU-Berlin/optsam"
 html_copy_source = False
-html_favicon = "_static/img/optsam-favicon.png"
+html_favicon = "_static/img/lis.png"
 html_theme_options = {
-    "light_logo": "img/robotics.png",
-    "dark_logo": "img/robotics-white.png",
-    "image": "img/robotics-github.png",
-    "description": "Optimization and Sampling Library - including constrained sparse NLP solvers, NLP sampling, zero-order methods, and test problems",
+    "light_logo": "img/lis.png",
+    "dark_logo": "img/lis.png",
     "source_repository": "https://github.com/LIS-TU-Berlin/optsam",
     "source_branch": "main",
     "source_directory": "docs/",
