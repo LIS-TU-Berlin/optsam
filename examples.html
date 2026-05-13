@@ -2,13 +2,15 @@
 <html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
-        <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/genindex.html">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Solvers" href="tutorials/compare_solvers.html">
+        <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/examples.html">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
 
-    <link rel="shortcut icon" href="_static/lis.png"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 --><title>Index - LIS Optimization &amp; Sampling</title>
-<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="shortcut icon" href="_static/lis.png"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Examples - LIS Optimization &amp; Sampling</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -173,7 +175,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -196,11 +198,11 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tutorials/nlp_interface.html">NLP interface &amp; Solver basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/test_problems.html">Test Problems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/compare_solvers.html">Solvers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -224,7 +226,17 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/LIS-TU-Berlin/optsam/blob/main/docs/examples.md?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/LIS-TU-Berlin/optsam/edit/main/docs/examples.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -232,15 +244,56 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          
-<section class="genindex-section">
-  <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"></div>
+          <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h1>
+<section id="nlp-sampling">
+<h2>NLP Sampling<a class="headerlink" href="#nlp-sampling" title="Link to this heading">¶</a></h2>
+<p>This creates the ‘IK’ problem, and shows how to call the default NLP sampler, as well as display and evaluate the samples.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_samples</span><span class="p">(</span><span class="n">nlp</span> <span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP_Sampler</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+    <span class="c1">#solver.setOptions() #access to many options - let&#39;s take default</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">&lt;</span><span class="n">n</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">feasible</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">display_samples</span><span class="p">(</span><span class="n">nlp</span> <span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">komo</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">as_KOMO</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">komo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;this works only for komo problems&#39;</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">phi</span><span class="p">,</span> <span class="n">J</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">err_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="n">nlp</span><span class="o">.</span><span class="n">types</span><span class="o">==</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">eq</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">phi:&#39;</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">err:&#39;</span><span class="p">,</span> <span class="n">err_eq</span><span class="p">)</span>
+        <span class="n">komo</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;data </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_NLP_Problem_names</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;== these are all problems:&#39;</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
+
+    <span class="n">nlp</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">make_NLP_Problem</span><span class="p">(</span><span class="s1">&#39;IK&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;== we pick &quot;IK&quot; as a problem:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;===&#39;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">generate_samples</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">display_samples</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -249,7 +302,17 @@
         
         <div class="related-pages">
           
-          
+          <a class="prev-page" href="tutorials/compare_solvers.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Solvers</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -268,8 +331,27 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#nlp-sampling">NLP Sampling</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
