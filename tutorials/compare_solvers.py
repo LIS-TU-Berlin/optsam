@@ -28,6 +28,7 @@ def run(nlp: op.NLP, method: op.OptMethod, fixed_x0: npt.NDArray[np.float64]):
     ret = sol.solve()
     print(f'== method {method}: {ret}')
     best_trace = sol.getTrace_best()
+    trace = sol.getTrace_x()
 
     return best_trace
 
@@ -42,7 +43,7 @@ def main():
     print(problems)
 
     methods = [op.OptMethod.Rprop, op.OptMethod.LBFGS, op.OptMethod.Newton]
-    probs = problems[:3]
+    probs = problems
 
     seeds = 1
 
@@ -54,6 +55,12 @@ def main():
         traces = []
         for s in range(seeds):
             x0 = nlp.getInitializationSample()
+            feature_types = nlp.getTypes()
+            if op.OT.eq in feature_types or op.OT.ineq in feature_types:
+                m = op.OptMethod.AugmentedLag
+                best_trace = run(nlp, m, x0)
+                traces.append((m, best_trace))
+                continue
             for m in methods:
                 best_trace = run(nlp, m, x0)
                 traces.append((m, best_trace))
