@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Solvers" href="tutorials/compare_solvers.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OptSam - Optimization and Sampling Library" href="index.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/examples.html">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
@@ -199,9 +199,6 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="tutorials/nlp_interface.html">NLP interface &amp; Solver basics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/test_problems.html">Test Problems</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/compare_solvers.html">Solvers</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
@@ -251,10 +248,357 @@
         <article role="main" id="furo-main-content">
           <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h1>
+<section id="nlp-interface">
+<h2>NLP Interface<a class="headerlink" href="#nlp-interface" title="Link to this heading">¶</a></h2>
+<p>Basic introduction to defining an own NLP and using the NLP interface.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     formats: ipynb,py:percent</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: percent</span>
+<span class="c1">#       format_version: &#39;1.3&#39;</span>
+<span class="c1">#       jupytext_version: 1.19.1</span>
+<span class="c1">#   kernelspec:</span>
+<span class="c1">#     display_name: optsam</span>
+<span class="c1">#     language: python</span>
+<span class="c1">#     name: python3</span>
+<span class="c1"># ---</span>
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># # NLP interface &amp; Solver basics</span>
+<span class="c1">#</span>
+<span class="c1"># THis tutorial illustrates the generic NLP interface, access to a solver, and plotting the traces.</span>
+
+<span class="c1"># %%</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># Define a problem, here: 2 dimensional, with 2 SOS features, and bounds [-1,-2]x[2,3]</span>
+
+<span class="c1"># %%</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyNLP</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">sos</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="p">])</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">],</span>
+                      <span class="p">[</span> <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="p">]])</span>
+        <span class="k">return</span> <span class="n">phi</span><span class="p">,</span> <span class="n">J</span>
+    
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">MyNLP</span><span class="p">()</span>
+
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># Create a solver</span>
+
+<span class="c1"># %%</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP_Solver</span><span class="p">()</span>
+<span class="n">sol</span><span class="o">.</span><span class="n">setPyProblem</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+<span class="n">sol</span><span class="o">.</span><span class="n">setOptions</span><span class="p">(</span><span class="n">stepMax</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">sol</span><span class="o">.</span><span class="n">setTracing</span><span class="p">(</span><span class="n">trace_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">trace_errs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># Call the solver. Here 20 times in a row, each time automatically initialized with uniform in the bounds (default implementation of nlp.getInitializationSample)</span>
+
+<span class="c1"># %%</span>
+<span class="n">trace_x</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">trace_err</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+    <span class="n">trace_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol</span><span class="o">.</span><span class="n">getTrace_x</span><span class="p">())</span>
+    <span class="n">trace_err</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol</span><span class="o">.</span><span class="n">getTrace_errs</span><span class="p">())</span>
+    <span class="n">sol</span><span class="o">.</span><span class="n">clearTracing</span><span class="p">()</span>
+
+<span class="n">trace_f</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">trace_err</span><span class="p">]</span>
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># The following creates a grid X of input points, and evaluates the fct on X</span>
+
+<span class="c1"># %%</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">getProblem</span><span class="p">()</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">bounds</span>
+<span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nlp</span><span class="o">.</span><span class="n">dimension</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlp</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">X</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> 
+<span class="n">fX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">nlp</span><span class="o">.</span><span class="n">eval_scalar</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">dimension</span><span class="p">)])</span>
+<span class="n">fX</span> <span class="o">=</span> <span class="n">fX</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># ... to prepare plotting.</span>
+
+<span class="c1"># %%</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fX</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">trace_x</span><span class="p">:</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;o-r&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fX</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trace_x</span><span class="p">,</span> <span class="n">trace_f</span><span class="p">):</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">f</span><span class="p">,</span> <span class="s1">&#39;o-r&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># %% [markdown]</span>
+<span class="c1"># Finally, an example to check the derivatives (Jacobian of all problem features) at random initialization points:</span>
+
+<span class="c1"># %%</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">getProblem</span><span class="p">()</span><span class="o">.</span><span class="n">getInitializationSample</span><span class="p">()</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">getProblem</span><span class="p">()</span><span class="o">.</span><span class="n">checkJacobian</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">)</span>
+    <span class="c1"># print(r, x)</span>
+
+<span class="c1"># %%</span>
+</pre></div>
+</div>
+</section>
+<section id="test-problems">
+<h2>Test Problems<a class="headerlink" href="#test-problems" title="Link to this heading">¶</a></h2>
+<p>Browsing through all test problems.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     cell_metadata_filter: -all</span>
+<span class="c1">#     formats: ipynb,py:percent</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: percent</span>
+<span class="c1">#       format_version: &#39;1.3&#39;</span>
+<span class="c1">#       jupytext_version: 1.19.1</span>
+<span class="c1">#   kernelspec:</span>
+<span class="c1">#     display_name: venv (3.12.3)</span>
+<span class="c1">#     language: python</span>
+<span class="c1">#     name: python3</span>
+<span class="c1"># ---</span>
+
+<span class="c1"># %%</span>
+<span class="c1">#  [markdown]</span>
+<span class="c1"># # Test Problems</span>
+<span class="c1">#</span>
+<span class="c1"># This script loops through all test problems, displays their signature, cost function, and -- if robotics problem -- komo scene.</span>
+
+<span class="c1"># </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1">#</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">scalar_objective</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">phi</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ty</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getTypes</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ty</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nlp</span><span class="o">.</span><span class="n">eval_scalar</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">cost</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">feature_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">ty</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">f</span><span class="p">:</span>
+            <span class="n">cost</span> <span class="o">+=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">sos</span><span class="p">:</span>
+            <span class="n">cost</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">cost</span>
+
+<span class="c1"># [markdown]</span>
+<span class="c1"># The following is a plotting helper problem: It creates a 2D grid; if the problem is 2D it evaluates on that grid; otherwise on a random hyperplane (determined by x0). Then plots.</span>
+
+<span class="c1">#</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_2d_unconstrained</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">bounds</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getInitializationSample</span><span class="p">()</span>
+
+    <span class="n">dim</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">dim</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">resolution</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">X</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> 
+
+    <span class="k">if</span> <span class="n">nlp</span><span class="o">.</span><span class="n">dimension</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+        <span class="n">fX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">scalar_objective</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="p">)])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">scalar_objective</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">2</span><span class="p">:])))</span>
+        <span class="n">fX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="p">)])</span>
+    <span class="n">fX</span> <span class="o">=</span> <span class="n">fX</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">fX</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="c1"># ax.plot(x[:,0], x[:,1], &#39;o-r&#39;, ms=3)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">p_name</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># [markdown]</span>
+<span class="c1"># The following displays a problem more generically: If it has constraints, it is converted to unconstraint (using the Augmented Lagrangian). If it is a robotics problem, it also displays the komo scene.</span>
+
+<span class="c1"># </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_any</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">p_name</span><span class="p">):</span>
+    <span class="n">ty</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">types</span>
+
+    <span class="n">komo</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">as_KOMO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">komo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+            <span class="c1"># x = nlp.getUniformSample()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getInitializationSample</span><span class="p">()</span>
+            <span class="n">nlp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">komo</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;random init&#39;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">.2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">eq</span> <span class="ow">in</span> <span class="n">ty</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">ineq</span> <span class="ow">in</span> <span class="n">ty</span><span class="p">):</span>
+        <span class="n">nlp_org</span> <span class="o">=</span> <span class="n">nlp</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">aug_lag</span><span class="p">(</span><span class="mf">1e1</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">)</span>
+
+    <span class="n">display_2d_unconstrained</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">p_name</span><span class="p">)</span>
+
+<span class="c1">#  [markdown]</span>
+<span class="c1"># We can now loop through all test problems, print their signatur, and display.</span>
+
+<span class="c1"># </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_NLP_Problem_names</span><span class="p">()</span> <span class="c1"># some pre-defined benchmark problems</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span>
+
+    <span class="c1"># p = problems[5]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">make_NLP_Problem</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;===</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">nlp</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;===&#39;</span><span class="p">)</span>
+        <span class="n">display_any</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+<span class="c1"># </span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="comparing-solvers">
+<h2>Comparing Solvers<a class="headerlink" href="#comparing-solvers" title="Link to this heading">¶</a></h2>
+<p>Looping through solvers and test problems to compare.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ---</span>
+<span class="c1"># jupyter:</span>
+<span class="c1">#   jupytext:</span>
+<span class="c1">#     cell_metadata_filter: -all</span>
+<span class="c1">#     formats: ipynb,py:percent</span>
+<span class="c1">#     text_representation:</span>
+<span class="c1">#       extension: .py</span>
+<span class="c1">#       format_name: percent</span>
+<span class="c1">#       format_version: &#39;1.3&#39;</span>
+<span class="c1">#       jupytext_version: 1.19.1</span>
+<span class="c1"># ---</span>
+
+<span class="c1"># %%</span>
+<span class="c1"># # Solvers</span>
+<span class="c1">#</span>
+<span class="c1"># This script runs several solvers on several test problems, displaying their performance.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">method_info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;none&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> 
+    <span class="s1">&#39;GradientDescent&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;Rprop&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;LBFGS&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;Newton&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> 
+    <span class="s1">&#39;AugmentedLag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;LogBarrier&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;slackGN_logBarrier&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;SquaredPenalty&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;singleSquaredPenalty&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> 
+    <span class="s1">&#39;slackGN&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> 
+    <span class="s1">&#39;NLopt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;Ipopt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;slackGN_Ipopt&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="s1">&#39;Ceres&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">),</span> 
+    <span class="s1">&#39;LSBO&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;greedy&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;NelderMead&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> 
+    <span class="s1">&#39;CMA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;LS_CMA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="s1">&#39;ES&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">),</span> 
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="p">,</span> <span class="n">fixed_x0</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]):</span>
+    <span class="n">sol</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP_Solver</span><span class="p">()</span>
+    <span class="n">sol</span><span class="o">.</span><span class="n">setProblem</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+    <span class="n">sol</span><span class="o">.</span><span class="n">setOptions</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">stopTolerance</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+    <span class="n">sol</span><span class="o">.</span><span class="n">setInitialization</span><span class="p">(</span><span class="n">fixed_x0</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;-- method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">ret</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sol</span><span class="o">.</span><span class="n">getTrace_best</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_NLP_Problem_names</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- all problems:&#39;</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
+    
+    <span class="c1"># problems = [&#39;square&#39;, &#39;Rugged&#39;, &#39;Rastrigin&#39;, &#39;Rosenbrock&#39;, &#39;Ackley&#39;, &#39;Himmelblau&#39;, &#39;Box&#39;, &#39;Modes&#39;, &#39;Wedge&#39;, &#39;HalfCircle&#39;, &#39;LinearProgram&#39;, &#39;IK&#39;, &#39;IKobstacle&#39;, &#39;IKtorus&#39;, &#39;PushToReach&#39;, &#39;StableSphere&#39;, &#39;SpherePacking&#39;, &#39;MinimalConvexCore&#39;]</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;square&#39;</span><span class="p">,</span>  <span class="s1">&#39;Modes&#39;</span><span class="p">,</span> <span class="s1">&#39;LinearProgram&#39;</span><span class="p">,</span> <span class="s1">&#39;IK&#39;</span><span class="p">,</span> <span class="s1">&#39;IKobstacle&#39;</span><span class="p">,</span> <span class="s1">&#39;SpherePacking&#39;</span><span class="p">,</span> <span class="s1">&#39;MinimalConvexCore&#39;</span><span class="p">]</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">AugmentedLag</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">LBFGS</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">Rprop</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">OptMethod</span><span class="o">.</span><span class="n">Newton</span> <span class="p">]</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">problems</span>
+
+    <span class="n">traces</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">seeds</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">probs</span><span class="p">):</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">make_NLP_Problem</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">ty</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getTypes</span><span class="p">()</span>
+        <span class="n">is_constrained</span> <span class="o">=</span> <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">eq</span> <span class="ow">in</span> <span class="n">ty</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">OT</span><span class="o">.</span><span class="n">ineq</span> <span class="ow">in</span> <span class="n">ty</span><span class="p">)</span>
+            
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;===&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;===&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">nlp</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=============&#39;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">traces</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">seeds</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getInitializationSample</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="n">is_constrained_method</span> <span class="o">=</span> <span class="n">method_info</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_constrained</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_constrained_method</span><span class="p">:</span>
+                    <span class="n">nlp_tmp</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">aug_lag</span><span class="p">(</span><span class="n">muSquaredPenalty</span><span class="o">=</span><span class="mf">1e2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nlp_tmp</span> <span class="o">=</span> <span class="n">nlp</span>
+                <span class="n">best_trace</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">nlp_tmp</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+                <span class="n">traces</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_trace</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- plot&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">nlp</span><span class="o">.</span><span class="n">dimension</span><span class="si">}</span><span class="s1">D)&#39;</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">x_min</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">traces</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">))</span>
+                <span class="n">x_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="n">color</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">x_min</span><span class="o">&gt;</span><span class="mf">1e-10</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">nlp</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
 <section id="nlp-sampling">
 <h2>NLP Sampling<a class="headerlink" href="#nlp-sampling" title="Link to this heading">¶</a></h2>
 <p>This creates the ‘IK’ problem, and shows how to call the default NLP sampler, as well as display and evaluate the samples.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
@@ -302,14 +646,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="tutorials/compare_solvers.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Solvers</div>
+                <div class="title">Home</div>
                 
               </div>
             </a>
@@ -344,6 +688,9 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#nlp-interface">NLP Interface</a></li>
+<li><a class="reference internal" href="#test-problems">Test Problems</a></li>
+<li><a class="reference internal" href="#comparing-solvers">Comparing Solvers</a></li>
 <li><a class="reference internal" href="#nlp-sampling">NLP Sampling</a></li>
 </ul>
 </li>
