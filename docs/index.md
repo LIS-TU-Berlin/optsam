@@ -10,6 +10,7 @@ lastpage:
 tutorials/nlp_interface
 tutorials/test_problems
 tutorials/compare_solvers
+examples
 ```
 
 ```{toctree}
