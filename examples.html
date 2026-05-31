@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OptSam - Optimization and Sampling Library" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="NLP Sampling example" href="examples/NLP_sampling_example.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/examples.html">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
         <link rel="prefetch" href="_static/img/lis.png" as="image">
@@ -199,6 +199,10 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples/nlp_interface.html">NLP interface &amp; Solver basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/test_problems.html">Test Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/compare_solvers.html">Solvers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/NLP_sampling_example.html">NLP Sampling example</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
@@ -387,19 +391,17 @@
 <span class="c1">#     name: python3</span>
 <span class="c1"># ---</span>
 
-<span class="c1"># %%</span>
-<span class="c1">#  [markdown]</span>
+<span class="c1"># %% [markdown]</span>
 <span class="c1"># # Test Problems</span>
 <span class="c1">#</span>
 <span class="c1"># This script loops through all test problems, displays their signature, cost function, and -- if robotics problem -- komo scene.</span>
 
-<span class="c1"># </span>
+<span class="c1"># %%</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="c1">#</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">scalar_objective</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="n">phi</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">ty</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getTypes</span><span class="p">()</span>
@@ -415,10 +417,11 @@
             <span class="n">cost</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">cost</span>
 
-<span class="c1"># [markdown]</span>
+<span class="c1"># %% [markdown]</span>
+<span class="c1">#</span>
 <span class="c1"># The following is a plotting helper problem: It creates a 2D grid; if the problem is 2D it evaluates on that grid; otherwise on a random hyperplane (determined by x0). Then plots.</span>
 
-<span class="c1">#</span>
+<span class="c1"># %%</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">display_2d_unconstrained</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
     <span class="n">B</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">bounds</span>
     <span class="n">x0</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">getInitializationSample</span><span class="p">()</span>
@@ -442,10 +445,11 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">p_name</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="c1"># [markdown]</span>
+<span class="c1"># %% [markdown]</span>
+<span class="c1">#</span>
 <span class="c1"># The following displays a problem more generically: If it has constraints, it is converted to unconstraint (using the Augmented Lagrangian). If it is a robotics problem, it also displays the komo scene.</span>
 
-<span class="c1"># </span>
+<span class="c1"># %%</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">display_any</span><span class="p">(</span><span class="n">nlp</span><span class="p">:</span> <span class="n">op</span><span class="o">.</span><span class="n">NLP</span><span class="p">,</span> <span class="n">p_name</span><span class="p">):</span>
     <span class="n">ty</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">types</span>
 
@@ -464,10 +468,11 @@
 
     <span class="n">display_2d_unconstrained</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">p_name</span><span class="p">)</span>
 
-<span class="c1">#  [markdown]</span>
+<span class="c1"># %% [markdown]</span>
+<span class="c1">#</span>
 <span class="c1"># We can now loop through all test problems, print their signatur, and display.</span>
 
-<span class="c1"># </span>
+<span class="c1"># %%</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">problems</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_NLP_Problem_names</span><span class="p">()</span> <span class="c1"># some pre-defined benchmark problems</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">problems</span><span class="p">)</span>
@@ -499,11 +504,12 @@
 <span class="c1">#       jupytext_version: 1.19.1</span>
 <span class="c1"># ---</span>
 
-<span class="c1"># %%</span>
+<span class="c1"># %% [markdown]</span>
 <span class="c1"># # Solvers</span>
 <span class="c1">#</span>
 <span class="c1"># This script runs several solvers on several test problems, displaying their performance.</span>
 
+<span class="c1"># %%</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optsam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
@@ -646,14 +652,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="examples/NLP_sampling_example.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">NLP Sampling example</div>
                 
               </div>
             </a>

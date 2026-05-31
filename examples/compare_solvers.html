@@ -3,13 +3,13 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="NLP Sampling example" href="NLP_sampling_example.html"><link rel="prev" title="Test Problems" href="test_problems.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/examples/compare_solvers.html">
         <link rel="prefetch" href="../_static/img/lis.png" as="image">
         <link rel="prefetch" href="../_static/img/lis.png" as="image">
 
     <link rel="shortcut icon" href="../_static/lis.png"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>&lt;no title&gt; - LIS Optimization &amp; Sampling</title>
+        <title>Solvers - LIS Optimization &amp; Sampling</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -199,7 +199,11 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nlp_interface.html">NLP interface &amp; Solver basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test_problems.html">Test Problems</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Solvers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="NLP_sampling_example.html">NLP Sampling example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
@@ -247,15 +251,14 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <div class="nbinput nblast docutils container">
+          <section id="Solvers">
+<h1>Solvers<a class="headerlink" href="#Solvers" title="Link to this heading">¶</a></h1>
+<p>This script runs several solvers on several test problems, displaying their performance.</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># # Solvers
-#
-# This script runs several solvers on several test problems, displaying their performance.
-
-import optsam as op
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span>import optsam as op
 import numpy as np
 import numpy.typing as npt
 import matplotlib.pylab as plt
@@ -346,14 +349,33 @@ if __name__ == &quot;__main__&quot;:
 </pre></div>
 </div>
 </div>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="NLP_sampling_example.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">NLP Sampling example</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="test_problems.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Test Problems</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">

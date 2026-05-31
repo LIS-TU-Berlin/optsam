@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Solvers" href="compare_solvers.html"><link rel="prev" title="NLP interface &amp; Solver basics" href="nlp_interface.html">
         <link rel="canonical" href="https://github.com/LIS-TU-Berlin/optsam/examples/test_problems.html">
         <link rel="prefetch" href="../_static/img/lis.png" as="image">
         <link rel="prefetch" href="../_static/img/lis.png" as="image">
@@ -199,7 +199,11 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nlp_interface.html">NLP interface &amp; Solver basics</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Test Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compare_solvers.html">Solvers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="NLP_sampling_example.html">NLP Sampling example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
@@ -254,7 +258,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span>import optsam as op
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import optsam as op
 import numpy as np
 import matplotlib.pylab as plt
 import time
@@ -273,12 +277,15 @@ def scalar_objective(nlp: op.NLP, x):
         elif feature_type == op.OT.sos:
             cost += value * value
     return cost
-
-# [markdown]
-# The following is a plotting helper problem: It creates a 2D grid; if the problem is 2D it evaluates on that grid; otherwise on a random hyperplane (determined by x0). Then plots.
-
-#
-def display_2d_unconstrained(nlp: op.NLP, p_name, resolution=30):
+</pre></div>
+</div>
+</div>
+<p>The following is a plotting helper problem: It creates a 2D grid; if the problem is 2D it evaluates on that grid; otherwise on a random hyperplane (determined by x0). Then plots.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def display_2d_unconstrained(nlp: op.NLP, p_name, resolution=30):
     B = nlp.bounds
     x0 = nlp.getInitializationSample()
 
@@ -300,12 +307,15 @@ def display_2d_unconstrained(nlp: op.NLP, p_name, resolution=30):
     # ax.plot(x[:,0], x[:,1], &#39;o-r&#39;, ms=3)
     ax.set_title(p_name)
     plt.show()
-
-# [markdown]
-# The following displays a problem more generically: If it has constraints, it is converted to unconstraint (using the Augmented Lagrangian). If it is a robotics problem, it also displays the komo scene.
-
-#
-def display_any(nlp: op.NLP, p_name):
+</pre></div>
+</div>
+</div>
+<p>The following displays a problem more generically: If it has constraints, it is converted to unconstraint (using the Augmented Lagrangian). If it is a robotics problem, it also displays the komo scene.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def display_any(nlp: op.NLP, p_name):
     ty = nlp.types
 
     komo = nlp.as_KOMO()
@@ -322,12 +332,15 @@ def display_any(nlp: op.NLP, p_name):
         nlp = nlp.aug_lag(1e1, -1.)
 
     display_2d_unconstrained(nlp, p_name)
-
-#  [markdown]
-# We can now loop through all test problems, print their signatur, and display.
-
-#
-def main():
+</pre></div>
+</div>
+</div>
+<p>We can now loop through all test problems, print their signatur, and display.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def main():
     problems = op.get_NLP_Problem_names() # some pre-defined benchmark problems
     print(problems)
 
@@ -350,8 +363,26 @@ if __name__ == &quot;__main__&quot;:
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="compare_solvers.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Solvers</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="nlp_interface.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">NLP interface &amp; Solver basics</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
