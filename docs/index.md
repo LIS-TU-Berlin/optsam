@@ -7,9 +7,10 @@ lastpage:
 ```{toctree}
 :hidden:
 :caption: Tutorials
-tutorials/nlp_interface
-tutorials/test_problems
-tutorials/compare_solvers
+examples/nlp_interface
+examples/test_problems
+examples/compare_solvers
+examples/NLP_sampling_example
 examples
 ```
 

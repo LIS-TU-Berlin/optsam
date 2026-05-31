@@ -14,19 +14,17 @@
 #     name: python3
 # ---
 
-# %%
-#  [markdown]
+# %% [markdown]
 # # Test Problems
 #
 # This script loops through all test problems, displays their signature, cost function, and -- if robotics problem -- komo scene.
 
-# 
+# %%
 import optsam as op
 import numpy as np
 import matplotlib.pylab as plt
 import time
 
-#
 def scalar_objective(nlp: op.NLP, x):
     phi, _ = nlp.evaluate(x)
     ty = nlp.getTypes()
@@ -42,10 +40,11 @@ def scalar_objective(nlp: op.NLP, x):
             cost += value * value
     return cost
 
-# [markdown]
+# %% [markdown]
+#
 # The following is a plotting helper problem: It creates a 2D grid; if the problem is 2D it evaluates on that grid; otherwise on a random hyperplane (determined by x0). Then plots.
 
-#
+# %%
 def display_2d_unconstrained(nlp: op.NLP, p_name, resolution=30):
     B = nlp.bounds
     x0 = nlp.getInitializationSample()
@@ -69,10 +68,11 @@ def display_2d_unconstrained(nlp: op.NLP, p_name, resolution=30):
     ax.set_title(p_name)
     plt.show()
 
-# [markdown]
+# %% [markdown]
+#
 # The following displays a problem more generically: If it has constraints, it is converted to unconstraint (using the Augmented Lagrangian). If it is a robotics problem, it also displays the komo scene.
 
-# 
+# %%
 def display_any(nlp: op.NLP, p_name):
     ty = nlp.types
 
@@ -91,10 +91,11 @@ def display_any(nlp: op.NLP, p_name):
 
     display_2d_unconstrained(nlp, p_name)
 
-#  [markdown]
+# %% [markdown]
+#
 # We can now loop through all test problems, print their signatur, and display.
 
-# 
+# %%
 def main():
     problems = op.get_NLP_Problem_names() # some pre-defined benchmark problems
     print(problems)

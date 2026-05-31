@@ -10,11 +10,12 @@
 #       jupytext_version: 1.19.1
 # ---
 
-# %%
+# %% [markdown]
 # # Solvers
 #
 # This script runs several solvers on several test problems, displaying their performance.
 
+# %%
 import optsam as op
 import numpy as np
 import numpy.typing as npt
